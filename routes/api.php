@@ -22,6 +22,8 @@ use App\Http\Controllers\EspecialidadController;
 // });
 
 
+//todo: faltan los middleware
+
 //Doctores------------------------------------------------
 
 Route::get('/doctores',[DoctorController::class, 'getDoctores']);
