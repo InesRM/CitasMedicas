@@ -150,7 +150,7 @@ class CitaController extends Controller
             'type' => 'required',
             'doctor_id' => 'exists:users,id',
             'paciente_id' => 'required',
-            'especialidad_id' => 'exists:especialidads,id',
+            'especialidad_id' => 'exists:especialidades,id',
         ]);
 
         $cita = Cita::find($id);
@@ -166,6 +166,9 @@ class CitaController extends Controller
         return ('Cita actualizada');
     }
 
+
+    //todo: cancelar cita no es delete.... hay un error en la ruta, solucionar y crear cancelarcita
+    //todo: tampoco se elimina de la tabla se actualiza el estado...cambiar
     public function delete($id)
     {
         $cita = Cita::find($id);
@@ -174,8 +177,34 @@ class CitaController extends Controller
         return ('Cita eliminada');
     }
 
+
     //citas Canceladas
 
+    //Cancelamos citas pendientes únicamente
+        public function cancelarCita($id){
+            $cita = Cita::find($id);
+
+            if($cita->estado == 'cancelado'){
+                return response()->json([
+                    'message' => 'La cita ya estaba cancelada previamente',
+                ], 409);
+            }else if($cita->estado == 'atendido'){
+                return response()->json([
+                    'message' => 'La cita ya ha sido atendida previamente',
+                ], 409);
+            }
+            else{
+                $cita->estado = 'cancelado';
+                $citaCancelada=citasCanceladas::create([
+                    'cita_id' => $cita->id,
+                    'descripcion' => $cita->descripcion,
+                    'cancelada_por' => $cita->paciente_id, //Todo: no entiendo porqué no se graba el id del paciente....
+                ]);
+                $cita->save();
+                $citaCancelada->save();
+                return ('Cita cancelada');
+            }
+        }
     public function getCitasCanceladas()
     {
         $citas = citasCanceladas::all();
@@ -194,30 +223,6 @@ class CitaController extends Controller
         }
         return $cancelada;
     }
-//Cancelamos citas pendientes únicamente
-    public function cancelarCita($id){
-        $cita = Cita::find($id);
-        if($cita->estado == 'cancelado'){
-            return response()->json([
-                'message' => 'La cita ya estaba cancelada previamente',
-            ], 409);
-        }else if($cita->estado == 'atendido'){
-            return response()->json([
-                'message' => 'La cita ya ha sido atendida previamente',
-            ], 409);
-        }
-        else{
-            $cita->estado = 'cancelado';
-            $citaCancelada=citasCanceladas::create([
-                'cita_id' => $cita->id,
-                'descripcion' => $cita->descripcion,
-                'cancelada_por' => $cita->paciente_id, //Todo: cambiar por el usuario que cancela la cita, necesitamos un módulo auth para identificar usuarios
-            ]);
-            $cita->save();
-            $citaCancelada->save();
-            return ('Cita cancelada');
-        }
-    }
 
     public function getCitasDoctor($id)
     {
@@ -234,6 +239,18 @@ class CitaController extends Controller
     public function getCitasEspecialidad($id)
     {
         $citas = Cita::where('especialidad_id', $id)->get();
+        return $citas;
+    }
+
+    public function getCitasFecha($fecha)
+    {
+        $citas = Cita::where('fecha_inicio', $fecha)->get();
+        return $citas;
+    }
+
+    public function getCitasEstado($estado)
+    {
+        $citas = Cita::where('estado', $estado)->get();
         return $citas;
     }
 }

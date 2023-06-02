@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class DoctorMiddleware
+class CheckRol
 {
     /**
      * Handle an incoming request.
@@ -14,13 +14,11 @@ class DoctorMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, $role)
     {
-        if($request->user()->role == 'doctor'){
-            return $next($request);
-
-        }else{
-            return redirect()->route('no access');
+       if (!$request->user()->hasRole($role)) {
+            abort(403, 'No tienes autorización para acceder a esta página');
+        }
+        return $next($request);
     }
-}
 }

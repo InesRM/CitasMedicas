@@ -15,14 +15,14 @@ class DoctorController extends Controller
         return $doctores;
     }
 
-    public function crear(Request $request)
+    public function registrar(Request $request)
     {
         $request->validate([
             'name' => 'required',
             'email' => 'required',
             'dni'=> 'required',
             'password' => 'required',
-            'especialidad' => '',
+            'especialidad' => 'required',
         ]);
 
         $doctor = new User();
@@ -31,12 +31,11 @@ class DoctorController extends Controller
         $doctor->dni = $request->dni;
         $doctor->password = bcrypt($request->password);
         $doctor->rol = 'doctor';
-        $doctor->especialidad= $request->especialidad;
         $doctor->save();
 
         $doctor->especialidades()->attach($request->especialidad);
 
-        return ('Doctor creado');
+        return ('doctor creado');
     }
 
     public function getDoctor($id)
