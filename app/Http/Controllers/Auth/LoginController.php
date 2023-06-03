@@ -20,9 +20,11 @@ class LoginController extends Controller
         if (Auth::attempt($credentials)) {
             $user = User::where('email', $request->email)->first();
             $token = $user->createToken('authToken')->plainTextToken;
+            $rol = $user->rol;
             $response = [
                 'user' => $user,
-                'token' => $token
+                'token' => $token,
+                'rol' => $rol
             ];
             return response($response, 201);
         } else {

@@ -45,7 +45,7 @@ Route::post('/login', [LoginController::class, 'login']);
 Route::get('/pacientes',[PacienteController::class, 'getPacientes']);
 Route::get('/pacientes/{id}',[PacienteController::class ,'getPaciente']);
 Route::post('/pacientes/crear', [PacienteController::class, 'crear']);
-Route::put('/pacientes/{id}', [PacienteController::class, 'update']);
+Route::put('/pacientes/{id}', [PacienteController::class, 'update'])->middleware(CheckRol::class.':paciente');
 Route::delete('/pacientes/{id}', [PacienteController::class, 'delete']);
 Route::get('/pacientes/{id}/citas', [PacienteController::class, 'getCitas']);
 
