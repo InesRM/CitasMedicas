@@ -15,10 +15,15 @@ class PacienteController extends Controller
 
     public function getPacientes()
     {
+        try{
         $pacientes = User::where('rol', 'paciente')->get();
         return $pacientes;
+    } catch (QueryException $e) {
+        return response()->json([
+            'message' => 'No se puede encontrar a los pacientes'
+        ], 404);
     }
-
+    }
 
     public function crear(Request $request)
     {
@@ -50,10 +55,16 @@ class PacienteController extends Controller
     {
         try{
         $paciente = User::find($id);
-        return $paciente;
-        } catch (QueryException $e) {
+        if(!$paciente){
             return response()->json([
                 'message' => 'No se puede encontrar al paciente'
+            ], 404);
+        }
+        return $paciente;
+
+        } catch (QueryException $e) {
+            return response()->json([
+                'message' => 'No exite el pacient'
             ], 404);
         }
     }
