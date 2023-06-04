@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Especialidad;
+use App\Models\Cita;
 
 class DoctorController extends Controller
 {
@@ -64,10 +66,24 @@ class DoctorController extends Controller
 
     public function delete($id)
     {
+        try{
         $doctor = User::find($id);
         $doctor->especialidades()->detach();
         $doctor->delete();
         return ('Doctor eliminado');
+        if ($doctor->rol == 'doctor') {
+            $doctor->especialidades()->detach();
+        }
+        if ($doctor->citas->count() > 0) {
+            return response()->json([
+                'message' => 'No se puede eliminar al doctor, tiene citas pendientes, pruebe dentro de unos días'
+            ], 404);
+        }
+    } catch (QueryException $e) {
+        return response()->json([
+            'message' => 'No se puede eliminar al doctor, tiene citas pendientes, pruebe dentro de unos días'
+        ], 404);
+    }
     }
 
     public function getEspecialidades($id)
@@ -113,8 +129,7 @@ class DoctorController extends Controller
 
     public function getCitas($id)
     {
-        $doctor = User::find($id);
-        $citas = $doctor->citas;
+        $citas = Cita::where('doctor_id', $id)->get();
         return $citas;
     }
 }
