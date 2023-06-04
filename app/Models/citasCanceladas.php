@@ -15,6 +15,8 @@ class citasCanceladas extends Model
         'cancelada_por_id',
     ];
 
+    //todo: creo que este es el problema...PRUEBA: cambiar el nombre de la función por cancelada_por_id
+
     public function cancelada_por()
     {
         return $this->belongsTo(User::class);
